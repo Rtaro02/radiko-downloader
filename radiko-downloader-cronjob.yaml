@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: radiko-downloader-cronjob
+spec:
+  schedule: "0 8-22 * * *"
+  suspend: false
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: radiko-downloader
+            image: us-west1-docker.pkg.dev/takedarut-radiko-downloader/radiko-downloader/radiko-downloader:latest
+          imagePullSecrets:
+            - name: artifact-registry-secret
+          restartPolicy: Never
