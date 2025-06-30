@@ -12,10 +12,12 @@ spec:
         spec:
           containers:
           - name: as1422-radiko-downloader
-            image: us-west1-docker.pkg.dev/takedarut-radiko-downloader/radiko-downloader/radiko-downloader@sha256:3469abe1139491c5b8b03874b161949494ff299f89e813928e2483ac88184891
+            image: us-west1-docker.pkg.dev/takedarut-radiko-downloader/radiko-downloader/radiko-downloader@sha256:5a8c5d55fad063ed86ea240dd3b19122e47a09d65b971eb82462d2f584207b3a
             env:
               - name: PROGRAM_START_TIME
                 value: "00:00"
+              - name: RADIO_STATION
+                value: "JORF"
           imagePullSecrets:
             - name: artifact-registry-secret
           restartPolicy: Never
