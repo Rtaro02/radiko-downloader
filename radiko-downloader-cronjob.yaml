@@ -3,7 +3,8 @@ kind: CronJob
 metadata:
   name: radiko-downloader-cronjob
 spec:
-  schedule: "0 8-22 * * *"
+  schedule: "0 1 * * 1"
+  startingDeadlineSeconds: 900
   suspend: false
   jobTemplate:
     spec:
@@ -11,7 +12,7 @@ spec:
         spec:
           containers:
           - name: radiko-downloader
-            image: us-west1-docker.pkg.dev/takedarut-radiko-downloader/radiko-downloader/radiko-downloader:latest
+            image: us-west1-docker.pkg.dev/takedarut-radiko-downloader/radiko-downloader/radiko-downloader@sha256:9d0f2c7c604d3c7b359029363f7e01797b37dbc9bb462ded580193728e21708b
           imagePullSecrets:
             - name: artifact-registry-secret
           restartPolicy: Never
