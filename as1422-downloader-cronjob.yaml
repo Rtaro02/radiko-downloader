@@ -1,7 +1,8 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: radiko-downloader-cronjob
+  name: as1422-downloader-cronjob
+  namespace: radiko
 spec:
   schedule: "0 1 * * 1"
   startingDeadlineSeconds: 900
@@ -11,8 +12,8 @@ spec:
       template:
         spec:
           containers:
-          - name: as1422-radiko-downloader
-            image: us-west1-docker.pkg.dev/takedarut-radiko-downloader/radiko-downloader/radiko-downloader@sha256:3469abe1139491c5b8b03874b161949494ff299f89e813928e2483ac88184891
+          - name: as1422-downloader
+            image: us-west1-docker.pkg.dev/takedarut-radiko-downloader/radiko-downloader/radiko-downloader@sha256:530df9b4dac16eea5d54690ca168849a736b1e63b7822e01c806afaf0da7b897
             env:
               - name: PROGRAM_START_TIME
                 value: "00:00"
