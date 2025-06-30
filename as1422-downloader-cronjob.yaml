@@ -1,7 +1,8 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: radiko-downloader-cronjob
+  name: as1422-downloader-cronjob
+  namespace: radiko
 spec:
   schedule: "0 1 * * 1"
   startingDeadlineSeconds: 900
