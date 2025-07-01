@@ -2,7 +2,7 @@
 DATE=$(date -d ${PROGRAM_START_TIME} +"%Y%m%d%H%M%S")
 
 echo "Recording date: ${DATE}"
-./rec_radiko_ts.sh -u https://radiko.jp/#!/ts/${JORF}/${DATE} -o as1422_${DATE}
+./rec_radiko_ts.sh -u https://radiko.jp/#!/ts/${RADIO_STATION}/${DATE} -o as1422_${DATE}
 if [ $? -ne 0 ]; then
     echo "Recording failed. Please check the URL or network connection."
     exit 1

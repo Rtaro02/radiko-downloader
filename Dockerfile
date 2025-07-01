@@ -22,7 +22,7 @@ RUN curl -O https://downloads.rclone.org/rclone-current-linux-amd64.zip && \
 COPY ./rclone.conf /tmp/rclone.conf
 COPY secrets/folder_id.txt /tmp/folder_id.txt
 RUN mkdir -p /root/.config/rclone && SECRET=$(cat /tmp/folder_id.txt) && sed "s|{{FOLDER_ID}}|$SECRET|g" /tmp/rclone.conf > /root/.config/rclone/rclone.conf
-COPY ./secrets/radiko-downloader-sa.json .
+COPY ./secrets/radiko-downloader-ss-sa.json .
 COPY ./run.sh .
 RUN chmod +x /app/run.sh
 
