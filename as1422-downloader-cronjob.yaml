@@ -19,6 +19,11 @@ spec:
                 value: "00:00"
               - name: RADIO_STATION
                 value: "JORF"
+              - name: AS1422_FOLDER
+                valueFrom:
+                  secretKeyRef:
+                    name: as1422-folder
+                    key: AS1422_FOLDER
           imagePullSecrets:
             - name: artifact-registry-secret
           restartPolicy: Never
