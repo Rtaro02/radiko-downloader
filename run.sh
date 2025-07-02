@@ -15,7 +15,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Recording completed. Now copying to Google Drive..."
-rclone copy as1422*.m4a drive:
+rclone copy ${FILE_NAME_PREFIX}_${DATE}.m4a drive:
 if [ $? -eq 0 ]; then
     echo "Copy to Google Drive completed successfully."
 else
