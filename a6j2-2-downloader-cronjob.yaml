@@ -19,11 +19,11 @@ spec:
                 value: "21:00"
               - name: RADIO_STATION
                 value: "TBS"
-              - name: AS1422_FOLDER
+              - name: RCLONE_DRIVE_ROOT_FOLDER_ID
                 valueFrom:
                   secretKeyRef:
                     name: as1422-folder
-                    key: AS1422_FOLDER
+                    key: RCLONE_DRIVE_ROOT_FOLDER_ID
           imagePullSecrets:
             - name: artifact-registry-secret
           restartPolicy: Never
