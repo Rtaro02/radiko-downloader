@@ -8,7 +8,7 @@ else
 fi
 
 echo "Recording date: ${DATE}"
-./rec_radiko_ts.sh -u https://radiko.jp/#!/ts/${RADIO_STATION}/${DATE} -o as1422_${DATE}
+./rec_radiko_ts.sh -u https://radiko.jp/#!/ts/${RADIO_STATION}/${DATE} -o ${FILE_NAME_PREFIX}_${DATE}
 if [ $? -ne 0 ]; then
     echo "Recording failed. Please check the URL or network connection."
     exit 1

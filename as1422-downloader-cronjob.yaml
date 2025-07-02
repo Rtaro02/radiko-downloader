@@ -19,6 +19,8 @@ spec:
                 value: "00:00"
               - name: RADIO_STATION
                 value: "JORF"
+              - name: FILE_NAME_PREFIX
+                value: "as1422"
               - name: RCLONE_DRIVE_ROOT_FOLDER_ID
                 valueFrom:
                   secretKeyRef:

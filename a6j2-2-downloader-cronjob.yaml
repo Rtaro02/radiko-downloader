@@ -19,6 +19,8 @@ spec:
                 value: "21:00"
               - name: RADIO_STATION
                 value: "TBS"
+              - name: FILE_NAME_PREFIX
+                value: "a6j2"
               - name: RCLONE_DRIVE_ROOT_FOLDER_ID
                 valueFrom:
                   secretKeyRef:
