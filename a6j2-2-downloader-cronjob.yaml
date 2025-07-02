@@ -22,8 +22,8 @@ spec:
               - name: RCLONE_DRIVE_ROOT_FOLDER_ID
                 valueFrom:
                   secretKeyRef:
-                    name: as1422-folder
-                    key: RCLONE_DRIVE_ROOT_FOLDER_ID
+                    name: google-drive-folder-secrets
+                    key: A6J2_FOLDER
           imagePullSecrets:
             - name: artifact-registry-secret
           restartPolicy: Never
