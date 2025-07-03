@@ -4,7 +4,8 @@
 if [ -n "${TEST_DATE}" ]; then
     DATE=${TEST_DATE}
 else
-    DATE=$(date -d "${PROGRAM_START_TIME}" +"%Y%m%d%H%M%S")
+    # k8s環境はUTCで動作するので+9時間の補正をかける
+    DATE=$(TZ=Asia/Tokyo date -d ${PROGRAM_START_TIME} +"%Y%m%d%H%M%S")
 fi
 
 echo "Recording date: ${DATE}"
