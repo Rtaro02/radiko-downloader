@@ -34,11 +34,11 @@ PERFORMER=$(xmllint --xpath "string(//prog[contains(title, \"${PROGRAM_TITLE}\")
 echo "Title: ${TITLE}"
 echo "Performer: ${PERFORMER}"
 
-FILE_NAME="${PROGRAM_TITLE}_${XMLDATE}_${PERFORMER}"
+FILE_NAME="${TITLE}_${XMLDATE}_${HOURMIN}"
 echo "File name: ${FILE_NAME}"
 echo "Converting to m4a format..."
 ffmpeg -i input.m4a \
-    -metadata title="${PROGRAM_TITLE} $(TZ=Asia/Tokyo date -d "@${EPOCH}" +"%Y:%m:%d") ${PERFORMER}" \
+    -metadata title="${TITLE} $(TZ=Asia/Tokyo date -d "@${EPOCH}" +"%Y-%m-%d %H:%M") ${PERFORMER}" \
     -metadata artist="${PERFORMER}" \
     -metadata album="${PROGRAM_TITLE}" \
     -metadata date="${XMLDATE}" \
