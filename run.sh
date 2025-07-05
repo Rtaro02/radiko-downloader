@@ -34,15 +34,21 @@ PERFORMER=$(xmllint --xpath "string(//prog[contains(title, \"${PROGRAM_TITLE}\")
 echo "Title: ${TITLE}"
 echo "Performer: ${PERFORMER}"
 
-FILE_NAME="${TITLE}_${XMLDATE}_${HOURMIN}"
+FILE_NAME="${FILE_NAME_PREFIX}_${XMLDATE}_${HOURMIN}"
 echo "File name: ${FILE_NAME}"
 echo "Converting to m4a format..."
 ffmpeg -i input.m4a \
-    -metadata title="${TITLE} $(TZ=Asia/Tokyo date -d "@${EPOCH}" +"%Y-%m-%d %H:%M") ${PERFORMER}" \
+    -metadata title="${PROGRAM_TITLE} $(TZ=Asia/Tokyo date -d "@${EPOCH}" +"%Y-%m-%d %H:%M") ${PERFORMER}" \
     -metadata artist="${PERFORMER}" \
     -metadata album="${PROGRAM_TITLE}" \
     -metadata date="${XMLDATE}" \
     -codec copy ${FILE_NAME}.m4a
+if [ $? -eq 0 ]; then
+    echo "Conversion to m4a format completed successfully."
+else
+    echo "Failed to convert to m4a format."
+    exit 1
+fi
 
 echo "Recording completed. Now copying to Google Drive..."
 rclone copy ${FILE_NAME}.m4a drive:
