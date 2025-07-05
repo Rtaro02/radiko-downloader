@@ -2,12 +2,13 @@
 
 # TEST_DATE が設定されていればそれを使用、なければ PROGRAM_START_TIME から生成
 if [ -n "${TEST_DATE}" ]; then
-    DATE=${TEST_DATE}
+    EPOCH=$(date -u -d "${TEST_DATE}" +%s)
 else
     # k8s環境はUTCで動作するので+9時間の補正をかける
-    DATE=$(TZ=Asia/Tokyo date -d ${PROGRAM_START_TIME} +"%Y%m%d%H%M%S")
+    EPOCH=$(date -u -d ${PROGRAM_START_TIME} +"%s")
 fi
 
+DATE=$(TZ=Asia/Tokyo date -d "@${EPOCH}" +"%Y%m%d%H%M%S")
 echo "Recording date: ${DATE}"
 FILE_NAME_=${FILE_NAME_PREFIX}_${DATE}
 ./rec_radiko_ts.sh -u https://radiko.jp/#!/ts/${RADIO_STATION}/${DATE} -o ${FILE_NAME}_input
@@ -18,10 +19,11 @@ fi
 
 #時刻表取得用の文字列を取得
 HOURMIN=$(echo "${DATE}" | cut -c9-12)
+#00:00開始の番組は前日の番組表に含まれる
 if [ "${HOURMIN}" = "0000" ]; then
-    XMLDATE=$(date -j -f "%Y%m%d%H%M%S" -v-1d "${DATE}" +"%Y%m%d")
+    XMLDATE=$(TZ=Asia/Tokyo date -d "@$((EPOCH - 86400))" +"%Y%m%d")
 else
-    XMLDATE=$(echo "${DATE}" | cut -c1-8)
+    XMLDATE=$(TZ=Asia/Tokyo date -d "@${EPOCH}" +"%Y%m%d")
 fi
 
 #時刻表の取得 → タイトルと出演者の取得
