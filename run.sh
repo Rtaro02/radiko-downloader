@@ -10,9 +10,7 @@ fi
 
 DATE=$(TZ=Asia/Tokyo date -d "@${EPOCH}" +"%Y%m%d%H%M%S")
 echo "Recording date: ${DATE}"
-FILE_NAME=${FILE_NAME_PREFIX}_${DATE}
-echo "File name: ${FILE_NAME}"
-./rec_radiko_ts.sh -u https://radiko.jp/#!/ts/${RADIO_STATION}/${DATE} -o ${FILE_NAME}_input
+./rec_radiko_ts.sh -u https://radiko.jp/#!/ts/${RADIO_STATION}/${DATE} -o input
 if [ $? -ne 0 ]; then
     echo "Recording failed. Please check the URL or network connection."
     exit 1
@@ -36,10 +34,13 @@ PERFORMER=$(xmllint --xpath "string(//prog[contains(title, \"${PROGRAM_TITLE}\")
 echo "Title: ${TITLE}"
 echo "Performer: ${PERFORMER}"
 
+FILE_NAME="${TITLE}_${XMLDATE}_${PERFORMER}"
+echo "File name: ${FILE_NAME}"
 echo "Converting to m4a format..."
-ffmpeg -i ${FILE_NAME}_input.m4a \
-    -metadata title="${TITLE}" \
+ffmpeg -i input.m4a \
+    -metadata title="${TITLE} $(TZ=Asia/Tokyo date -d "@${EPOCH}" +"%Y:%m:%d") ${PERFORMER}" \
     -metadata artist="${PERFORMER}" \
+    -metadates album="${PROGRAM_TITLE}" \
     -metadata date="${XMLDATE}" \
     -codec copy ${FILE_NAME}.m4a
 
