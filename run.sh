@@ -10,7 +10,8 @@ fi
 
 DATE=$(TZ=Asia/Tokyo date -d "@${EPOCH}" +"%Y%m%d%H%M%S")
 echo "Recording date: ${DATE}"
-FILE_NAME_=${FILE_NAME_PREFIX}_${DATE}
+FILE_NAME=${FILE_NAME_PREFIX}_${DATE}
+echo "File name: ${FILE_NAME}"
 ./rec_radiko_ts.sh -u https://radiko.jp/#!/ts/${RADIO_STATION}/${DATE} -o ${FILE_NAME}_input
 if [ $? -ne 0 ]; then
     echo "Recording failed. Please check the URL or network connection."
@@ -19,17 +20,23 @@ fi
 
 #時刻表取得用の文字列を取得
 HOURMIN=$(echo "${DATE}" | cut -c9-12)
+echo "Hour and minute: ${HOURMIN}"
 #00:00開始の番組は前日の番組表に含まれる
 if [ "${HOURMIN}" = "0000" ]; then
     XMLDATE=$(TZ=Asia/Tokyo date -d "@$((EPOCH - 86400))" +"%Y%m%d")
 else
     XMLDATE=$(TZ=Asia/Tokyo date -d "@${EPOCH}" +"%Y%m%d")
 fi
+echo "XML date for timetable: ${XMLDATE}"
 
 #時刻表の取得 → タイトルと出演者の取得
 wget https://radiko.jp/v3/program/station/date/${XMLDATE}/${RADIO_STATION}.xml
 TITLE=$(xmllint --xpath "string(//prog[contains(title, \"${PROGRAM_TITLE}\")]/title)" "${RADIO_STATION}.xml")
 PERFORMER=$(xmllint --xpath "string(//prog[contains(title, \"${PROGRAM_TITLE}\")]/pfm)" "${RADIO_STATION}.xml")
+echo "Title: ${TITLE}"
+echo "Performer: ${PERFORMER}"
+
+echo "Converting to m4a format..."
 ffmpeg -i ${FILE_NAME}_input.mp4 \
     -metadata title="${TITLE}" \
     -metadata artist="${PERFORMER}" \
