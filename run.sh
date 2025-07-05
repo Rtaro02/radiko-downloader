@@ -38,7 +38,7 @@ FILE_NAME="${FILE_NAME_PREFIX}_$(TZ=Asia/Tokyo date -d "@${EPOCH}" +"%Y%m%d_%H%M
 echo "File name: ${FILE_NAME}"
 echo "Converting to m4a format..."
 ffmpeg -i input.m4a \
-    -metadata title="${PROGRAM_TITLE} $(TZ=Asia/Tokyo date -d "@${EPOCH}" +"%Y-%m-%d %H:%M") ${PERFORMER}" \
+    -metadata title="$(TZ=Asia/Tokyo date -d "@${EPOCH}" +"%Y-%m-%d") ${PERFORMER}" \
     -metadata artist="${PERFORMER}" \
     -metadata album="${PROGRAM_TITLE}" \
     -metadata date="${XMLDATE}" \
