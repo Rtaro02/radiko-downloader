@@ -13,7 +13,7 @@ spec:
         spec:
           containers:
           - name: a6j2-1-radiko-downloader
-            image: us-west1-docker.pkg.dev/takedarut-radiko-downloader/radiko-downloader/radiko-downloader@sha256:31253b7eeb9d84556c4889b8c18282369776fd85034d4eee959161823315c406
+            image: us-west1-docker.pkg.dev/takedarut-radiko-downloader/radiko-downloader/radiko-downloader@sha256:649819b1d34395b757cdf396e14204ebaa19e15599864860d7a58af9d462e488
             env:
               - name: PROGRAM_START_TIME
                 value: "20:00"

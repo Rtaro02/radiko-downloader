@@ -37,7 +37,7 @@ echo "Title: ${TITLE}"
 echo "Performer: ${PERFORMER}"
 
 echo "Converting to m4a format..."
-ffmpeg -i ${FILE_NAME}_input.mp4 \
+ffmpeg -i ${FILE_NAME}_input.m4a \
     -metadata title="${TITLE}" \
     -metadata artist="${PERFORMER}" \
     -metadata date="${XMLDATE}" \
