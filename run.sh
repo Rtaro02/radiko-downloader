@@ -9,14 +9,33 @@ else
 fi
 
 echo "Recording date: ${DATE}"
-./rec_radiko_ts.sh -u https://radiko.jp/#!/ts/${RADIO_STATION}/${DATE} -o ${FILE_NAME_PREFIX}_${DATE}
+FILE_NAME_=${FILE_NAME_PREFIX}_${DATE}
+./rec_radiko_ts.sh -u https://radiko.jp/#!/ts/${RADIO_STATION}/${DATE} -o ${FILE_NAME}_input
 if [ $? -ne 0 ]; then
     echo "Recording failed. Please check the URL or network connection."
     exit 1
 fi
 
+#時刻表取得用の文字列を取得
+HOURMIN=$(echo "${DATE}" | cut -c9-12)
+if [ "${HOURMIN}" = "0000" ]; then
+    XMLDATE=$(date -j -f "%Y%m%d%H%M%S" -v-1d "${DATE}" +"%Y%m%d")
+else
+    XMLDATE=$(echo "${DATE}" | cut -c1-8)
+fi
+
+#時刻表の取得 → タイトルと出演者の取得
+wget https://radiko.jp/v3/program/station/date/${XMLDATE}/${RADIO_STATION}.xml
+TITLE=$(xmllint --xpath "string(//prog[contains(title, \"${PROGRAM_TITLE}\")]/title)" "${RADIO_STATION}.xml")
+PERFORMER=$(xmllint --xpath "string(//prog[contains(title, \"${PROGRAM_TITLE}\")]/pfm)" "${RADIO_STATION}.xml")
+ffmpeg -i ${FILE_NAME}_input.mp4 \
+    -metadata title="${TITLE}" \
+    -metadata artist="${PERFORMER}" \
+    -metadata date="${XMLDATE}" \
+    -codec copy ${FILE_NAME}.m4a
+
 echo "Recording completed. Now copying to Google Drive..."
-rclone copy ${FILE_NAME_PREFIX}_${DATE}.m4a drive:
+rclone copy ${FILE_NAME}.m4a drive:
 if [ $? -eq 0 ]; then
     echo "Copy to Google Drive completed successfully."
 else
