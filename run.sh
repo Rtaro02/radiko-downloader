@@ -2,7 +2,7 @@
 
 # TEST_DATE が設定されていればそれを使用、なければ PROGRAM_START_TIME から生成
 if [ -n "${TEST_DATE}" ]; then
-    EPOCH=$(date -u -d "${TEST_DATE}" +%s)
+    EPOCH=$(date -u -d "${TEST_DATE} ${PROGRAM_START_TIME}" +%s)
 else
     # k8s環境はUTCで動作するので+9時間の補正をかける
     EPOCH=$(date -u -d ${PROGRAM_START_TIME} +"%s")
