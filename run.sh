@@ -1,11 +1,11 @@
 #!/bin/sh
 
-# TEST_DATE が設定されていればそれを使用、なければ PROGRAM_START_TIME から生成
-if [ -n "${TEST_DATE}" ]; then
-    EPOCH=$(date -u -d "${TEST_DATE} ${PROGRAM_START_TIME}" +%s)
+# MANUAL_RUN_DATE が設定されていればそれを使用、なければ PROGRAM_START_TIME から生成
+if [ -n "${MANUAL_RUN_DATE}" ]; then
+    EPOCH=$(TZ=Asia/Tokyo date -d "${MANUAL_RUN_DATE} ${PROGRAM_START_TIME}" +%s)
 else
     # k8s環境はUTCで動作するので+9時間の補正をかける
-    EPOCH=$(date -u -d ${PROGRAM_START_TIME} +"%s")
+    EPOCH=$(TZ=Asia/Tokyo date -d ${PROGRAM_START_TIME} +"%s")
 fi
 
 DATE=$(TZ=Asia/Tokyo date -d "@${EPOCH}" +"%Y%m%d%H%M%S")
