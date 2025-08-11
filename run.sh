@@ -52,7 +52,7 @@ fi
 
 echo "Recording completed. Now copying to Google Drive..."
 gdrive account import gdrive_secret.tar
-gdrive files upload --parent ${GDRIVE_FOLDER_ID} ${FILE_NAME}.m4a 
+gdrive files upload --parent ${GDRIVE_FOLDER_ID} --mime audio/mp3 ${FILE_NAME}.m4a 
 if [ $? -eq 0 ]; then
     echo "Copy to Google Drive completed successfully."
 else
