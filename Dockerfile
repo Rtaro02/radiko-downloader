@@ -12,15 +12,13 @@ RUN apk --no-cache add\
 WORKDIR /app
 
 RUN git clone https://github.com/uru2/rec_radiko_ts && cp rec_radiko_ts/rec_radiko_ts.sh .
-RUN curl -O https://downloads.rclone.org/rclone-current-linux-amd64.zip && \
-    unzip rclone-current-linux-amd64.zip && \
-    mv rclone-*-linux-amd64 rclone && \
-    cd rclone && \
-    cp rclone /usr/bin/ && \
-    chmod +x /usr/bin/rclone
+RUN wget https://github.com/glotlabs/gdrive/releases/download/3.9.1/gdrive_linux-x64.tar.gz && \
+    tar -xzvf gdrive_linux-x64.tar.gz && \
+    rm gdrive_linux-x64.tar.gz && \
+    mv gdrive /usr/bin/ && \
+    chmod +x /usr/bin/gdrive
 
-COPY ./rclone.conf /root/.config/rclone/rclone.conf
-COPY ./secrets/radiko-downloader-ss-sa.json .
+COPY ./secrets/gdrive_secret.tar .
 COPY ./run.sh .
 RUN chmod +x /app/run.sh
 

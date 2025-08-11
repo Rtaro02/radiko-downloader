@@ -51,7 +51,8 @@ else
 fi
 
 echo "Recording completed. Now copying to Google Drive..."
-rclone copy ${FILE_NAME}.m4a drive:
+gdrive account import gdrive_secret.tar
+gdrive files upload --parent ${GDRIVE_FOLDER_ID} ${FILE_NAME}.m4a 
 if [ $? -eq 0 ]; then
     echo "Copy to Google Drive completed successfully."
 else

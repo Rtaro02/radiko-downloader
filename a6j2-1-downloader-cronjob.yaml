@@ -13,7 +13,7 @@ spec:
         spec:
           containers:
           - name: a6j2-1-radiko-downloader
-            image: us-west1-docker.pkg.dev/takedarut-radiko-downloader/radiko-downloader/radiko-downloader@sha256:27aff51b33d19fab526be823cc033142c39d7357471bcd98d56df3f9eb7e251d
+            image: us-west1-docker.pkg.dev/takedarut-radiko-downloader/radiko-downloader/radiko-downloader@sha256:51a4a96a41c08273a4f48901a6199d27ad953e3253ca31a7e4b7b08994e98ae4
             env:
               - name: PROGRAM_START_TIME
                 value: "20:00"
@@ -23,7 +23,7 @@ spec:
                 value: "a6j2"
               - name: PROGRAM_TITLE
                 value: "アフター６ジャンクション２"
-              - name: RCLONE_DRIVE_ROOT_FOLDER_ID
+              - name: GDRIVE_FOLDER_ID
                 valueFrom:
                   secretKeyRef:
                     name: google-drive-folder-secrets
