@@ -9,6 +9,7 @@ spec:
   suspend: false
   jobTemplate:
     spec:
+      ttlSecondsAfterFinished: 604800
       template:
         spec:
           containers:
