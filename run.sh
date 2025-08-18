@@ -6,8 +6,9 @@ echo "Current system date: $(date)"
 if [ -n "${MANUAL_RUN_DATE}" ]; then
     EPOCH=$(TZ=Asia/Tokyo date -d "${MANUAL_RUN_DATE} ${PROGRAM_START_TIME}" +%s)
 else
-    # k8s環境はUTCで動作するので+9時間の補正をかける
-    EPOCH=$(TZ=Asia/Tokyo date -d ${PROGRAM_START_TIME} +"%s")
+    # k8s環境はUTCで動作するので、JSTの現在日付を基準に時刻を計算する
+    JST_DATE=$(TZ=Asia/Tokyo date +"%Y-%m-%d")
+    EPOCH=$(TZ=Asia/Tokyo date -d "${JST_DATE} ${PROGRAM_START_TIME}" +%s)
 fi
 
 DATE=$(TZ=Asia/Tokyo date -d "@${EPOCH}" +"%Y%m%d%H%M%S")
