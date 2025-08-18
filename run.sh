@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "Current system date: $(date)"
+
 # MANUAL_RUN_DATE が設定されていればそれを使用、なければ PROGRAM_START_TIME から生成
 if [ -n "${MANUAL_RUN_DATE}" ]; then
     EPOCH=$(TZ=Asia/Tokyo date -d "${MANUAL_RUN_DATE} ${PROGRAM_START_TIME}" +%s)
