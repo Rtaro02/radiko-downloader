@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pinky805-downloader-cronjob
+  namespace: radiko
+spec:
+  schedule: "0 19 * * 5" # Every Friday at 19:00 JST
+  startingDeadlineSeconds: 900
+  suspend: false
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 604800
+      template:
+        spec:
+          containers:
+          - name: pinky805-radiko-downloader
+            image: us-west1-docker.pkg.dev/takedarut-radiko-downloader/radiko-downloader/radiko-downloader@sha256:0b2bd5eb6b4eb87e29317aaf9c1b109db868f53b2dd48fce8ecfb3c97b2fe16b
+            env:
+              - name: AREA_ID
+                value: "JP17" # Ishikawa
+              - name: PROGRAM_START_TIME
+                value: "18:00"
+              - name: RADIO_STATION
+                value: "HELLOFIVE"
+              - name: FILE_NAME_PREFIX
+                value: "pinky805"
+              - name: PROGRAM_TITLE
+                value: "Pinky Friday GOLD"
+              - name: PROGRAM_DURATION_MIN
+                value: "30"
+              - name: GDRIVE_FOLDER_ID
+                valueFrom:
+                  secretKeyRef:
+                    name: google-drive-folder-secrets
+                    key: AS1422_FOLDER
+          imagePullSecrets:
+            - name: artifact-registry-secret
+          restartPolicy: Never
