@@ -9,6 +9,7 @@ RUN apk --no-cache add\
             coreutils \
             curl \
             nodejs \
+            tzdata \
             npm
 
 WORKDIR /app

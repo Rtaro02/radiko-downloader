@@ -16,6 +16,7 @@ if [ -n "${MANUAL_RUN_DATE}" ]; then
 else
     # k8s環境はUTCで動作するので、JSTの現在日付を基準に時刻を計算する
     JST_DATE=$(TZ=Asia/Tokyo date +"%Y-%m-%d")
+    echo "JST date: ${JST_DATE}"
     EPOCH=$(TZ=Asia/Tokyo date -d "${JST_DATE} ${PROGRAM_START_TIME}" +%s)
 fi
 
