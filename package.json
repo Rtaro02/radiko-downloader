@@ -1,0 +1,10 @@
+{
+  "name": "radiko-downloader",
+  "version": "1.0.0",
+  "description": "Radiko downloader with location spoofing",
+  "main": "radiko-downloader.js",
+  "type": "module",
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}

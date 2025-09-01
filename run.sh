@@ -1,6 +1,14 @@
 #!/bin/sh
 
 echo "Current system date: $(date)"
+echo "Show Arguments:"
+echo "PROGRAM_START_TIME: ${PROGRAM_START_TIME}"
+echo "MANUAL_RUN_DATE: ${MANUAL_RUN_DATE}"
+echo "RADIO_STATION: ${RADIO_STATION}"
+echo "AREA_ID: ${AREA_ID}"
+echo "PROGRAM_TITLE: ${PROGRAM_TITLE}"
+echo "PROGRAM_DURATION_MIN: ${PROGRAM_DURATION_MIN}"
+echo "GDRIVE_FOLDER_ID: ${GDRIVE_FOLDER_ID}"
 
 # MANUAL_RUN_DATE が設定されていればそれを使用、なければ PROGRAM_START_TIME から生成
 if [ -n "${MANUAL_RUN_DATE}" ]; then
@@ -11,13 +19,25 @@ else
     EPOCH=$(TZ=Asia/Tokyo date -d "${JST_DATE} ${PROGRAM_START_TIME}" +%s)
 fi
 
+# 番組の終了時間取得
+END_DATE_EPOCH=$((EPOCH + PROGRAM_DURATION_MIN * 60))
+
 DATE=$(TZ=Asia/Tokyo date -d "@${EPOCH}" +"%Y%m%d%H%M%S")
-echo "Recording date: ${DATE}"
-./rec_radiko_ts.sh -u https://radiko.jp/#!/ts/${RADIO_STATION}/${DATE} -o input
+END_DATE=$(TZ=Asia/Tokyo date -d "@${END_DATE_EPOCH}" +"%Y%m%d%H%M%S")
+echo "Recording date: ${DATE} to ${END_DATE}"
+
+# radiko-downloader.jsでChunkを取得
+node radiko-downloader.js ${RADIO_STATION} ${AREA_ID} ${DATE} ${END_DATE}
 if [ $? -ne 0 ]; then
     echo "Recording failed. Please check the URL or network connection."
     exit 1
 fi
+
+# ffmpegで結合
+ffmpeg -fflags +genpts\
+  -protocol_whitelist "file,http,https,tcp,tls" \
+  -f concat -safe 0 -i ${RADIO_STATION}_${DATE}_${END_DATE}.txt \
+  -c:a copy input.m4a
 
 #時刻表取得用の文字列を取得
 HOURMIN=$(echo "${DATE}" | cut -c9-12)
