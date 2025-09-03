@@ -4,7 +4,7 @@ metadata:
   name: as1422-downloader-cronjob
   namespace: radiko
 spec:
-  schedule: "0 16 * * 0" # Every Monday at 1:00 AM JST
+  schedule: "30 15 * * 0" # Every Monday at 0:30 AM JST
   startingDeadlineSeconds: 900
   suspend: false
   jobTemplate:

@@ -4,7 +4,7 @@ metadata:
   name: pinky805-downloader-cronjob
   namespace: radiko
 spec:
-  schedule: "0 19 * * 5" # Every Friday at 19:00 JST
+  schedule: "30 9 * * 5" # Every Friday at 18:30 JST
   startingDeadlineSeconds: 900
   suspend: false
   jobTemplate:
