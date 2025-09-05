@@ -4,7 +4,7 @@ metadata:
   name: a6j2-2-downloader-cronjob
   namespace: radiko
 spec:
-  schedule: "0 13 * * 1-4" # Every weekday at 22:00 JST
+  schedule: "10 13 * * 1-4" # Every weekday at 22:10 JST
   startingDeadlineSeconds: 900
   suspend: false
   jobTemplate:
