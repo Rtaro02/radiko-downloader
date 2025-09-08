@@ -4,7 +4,7 @@ metadata:
   name: as1422-downloader-cronjob
   namespace: radiko
 spec:
-  schedule: "40 15 * * 0" # Every Monday at 0:40 AM JST
+  schedule: "45 15 * * 0" # Every Monday at 0:45 AM JST
   startingDeadlineSeconds: 900
   suspend: false
   jobTemplate:
@@ -14,7 +14,7 @@ spec:
         spec:
           containers:
           - name: as1422-radiko-downloader
-            image: us-west1-docker.pkg.dev/takedarut-radiko-downloader/radiko-downloader/radiko-downloader@sha256:311ba1a6fa68bc1929e3c72b91dcc01b22f9e4089b2d85da12ea0ffb50942c32
+            image: us-west1-docker.pkg.dev/takedarut-radiko-downloader/radiko-downloader/radiko-downloader@sha256:311ba1a6fa68bc1929e3c72b91dcc01b22f9e4589b2d85da12ea0ffb50942c32
             env:
               - name: AREA_ID
                 value: "JP13" # Tokyo
