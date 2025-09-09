@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: as1422-downloader-cronjob
+  namespace: radiko
+spec:
+  schedule: "45 15 * * 2" # Every Tuesday at 0:45 AM JST
+  startingDeadlineSeconds: 900
+  suspend: false
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 604800
+      template:
+        spec:
+          containers:
+          - name: as1422-radiko-downloader
+            image: us-west1-docker.pkg.dev/takedarut-radiko-downloader/radiko-downloader/radiko-downloader@sha256:311ba1a6fa68bc1929e3c72b91dcc01b22f9e4589b2d85da12ea0ffb50942c32
+            env:
+              - name: AREA_ID
+                value: "JP13" # Tokyo
+              - name: PROGRAM_START_TIME
+                value: "15:00"
+              - name: RADIO_STATION
+                value: "TBS"
+              - name: FILE_NAME_PREFIX
+                value: "america"
+              - name: PROGRAM_TITLE
+                value: "町山智浩のアメリカ流れ者"
+              - name: PROGRAM_DURATION_MIN
+                value: "30"
+              - name: GDRIVE_FOLDER_ID
+                valueFrom:
+                  secretKeyRef:
+                    name: google-drive-folder-secrets
+                    key: A6J2_FOLDER
+          imagePullSecrets:
+            - name: artifact-registry-secret
+          restartPolicy: Never
