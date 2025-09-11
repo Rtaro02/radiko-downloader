@@ -44,9 +44,9 @@ ffmpeg -fflags +genpts\
 # 60分で20.4MBという基準で計算
 EXPECTED_SIZE_BYTES=$(echo "${PROGRAM_DURATION_MIN} * 20.4 * 1024 * 1024 / 60" | bc | cut -d . -f 1)
 
-# 許容範囲を±1%とする
-MIN_SIZE=$(echo "${EXPECTED_SIZE_BYTES} * 0.99" | bc | cut -d . -f 1)
-MAX_SIZE=$(echo "${EXPECTED_SIZE_BYTES} * 1.01" | bc | cut -d . -f 1)
+# 許容範囲を±0.5%とする
+MIN_SIZE=$(echo "${EXPECTED_SIZE_BYTES} * 0.995" | bc | cut -d . -f 1)
+MAX_SIZE=$(echo "${EXPECTED_SIZE_BYTES} * 1.005" | bc | cut -d . -f 1)
 
 ACTUAL_SIZE=$(stat -c%s "input.m4a")
 
