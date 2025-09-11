@@ -40,7 +40,29 @@ ffmpeg -fflags +genpts\
   -f concat -safe 0 -i ${RADIO_STATION}_${DATE}_${END_DATE}.txt \
   -c:a copy input.m4a
 
+# ファイルサイズの検証
+# 60分で20.4MBという基準で計算
+EXPECTED_SIZE_BYTES=$(echo "${PROGRAM_DURATION_MIN} * 20.4 * 1024 * 1024 / 60" | bc | cut -d . -f 1)
+
+# 許容範囲を±1%とする
+MIN_SIZE=$(echo "${EXPECTED_SIZE_BYTES} * 0.99" | bc | cut -d . -f 1)
+MAX_SIZE=$(echo "${EXPECTED_SIZE_BYTES} * 1.01" | bc | cut -d . -f 1)
+
+ACTUAL_SIZE=$(stat -c%s "input.m4a")
+
+echo "Expected size: ${EXPECTED_SIZE_BYTES} bytes"
+echo "Actual size: ${ACTUAL_SIZE} bytes"
+echo "Allowed range: ${MIN_SIZE} - ${MAX_SIZE} bytes"
+
+if [ ${ACTUAL_SIZE} -lt ${MIN_SIZE} ] || [ ${ACTUAL_SIZE} -gt ${MAX_SIZE} ]; then
+    echo "Error: File size is out of the expected range."
+    exit 1
+fi
+
+echo "File size verification passed."
+
 #時刻表取得用の文字列を取得
+
 HOURMIN=$(echo "${DATE}" | cut -c9-12)
 echo "Hour and minute: ${HOURMIN}"
 #00:00開始の番組は前日の番組表に含まれる
