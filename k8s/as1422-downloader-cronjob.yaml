@@ -15,6 +15,13 @@ spec:
           containers:
           - name: as1422-radiko-downloader
             image: us-west1-docker.pkg.dev/takedarut-radiko-downloader/radiko-downloader/radiko-downloader@sha256:4c717ef11d9e4ed85abdab39bcbe80b2a789df62750c2f8c4923f4fc674d15f5
+            resources:
+              requests:
+                cpu: "250m"
+                memory: "256Mi"
+              limits:
+                cpu: "1000m"
+                memory: "1Gi"
             env:
               - name: AREA_ID
                 value: "JP13" # Tokyo
