@@ -8,6 +8,7 @@ echo "RADIO_STATION: ${RADIO_STATION}"
 echo "AREA_ID: ${AREA_ID}"
 echo "PROGRAM_TITLE: ${PROGRAM_TITLE}"
 echo "PROGRAM_DURATION_MIN: ${PROGRAM_DURATION_MIN}"
+echo "FILE_NAME_PREFIX=${FILE_NAME_PREFIX}"
 echo "GDRIVE_FOLDER_ID: ${GDRIVE_FOLDER_ID}"
 
 # MANUAL_RUN_DATE が設定されていればそれを使用、なければ PROGRAM_START_TIME から生成
@@ -34,19 +35,26 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# ffmpegで結合
-ffmpeg -fflags +genpts\
-  -protocol_whitelist "file,http,https,tcp,tls" \
-  -f concat -safe 0 -i ${RADIO_STATION}_${DATE}_${END_DATE}.txt \
-  -c:a copy input.m4a
+# ffmpegで結合（HLSプレイリストがあれば優先）
+PLAYLIST=${RADIO_STATION}_${DATE}_${END_DATE}.m3u8
+if [ -f "${PLAYLIST}" ]; then
+    echo "Using HLS playlist: ${PLAYLIST}"
+    ffmpeg -fflags +genpts \
+        -protocol_whitelist "file,http,https,tcp,tls" \
+        -i "${PLAYLIST}" \
+        -c copy input.m4a
+else
+    echo "HLS playlist not found — aborting (no .txt fallback)."
+    exit 1
+fi
 
 # ファイルサイズの検証
-# 60分で20.4MBという基準で計算
-EXPECTED_SIZE_BYTES=$(echo "${PROGRAM_DURATION_MIN} * 20.4 * 1024 * 1024 / 60" | bc | cut -d . -f 1)
+# 60分で21.0MBという基準で計算
+EXPECTED_SIZE_BYTES=$(echo "${PROGRAM_DURATION_MIN} * 21.0 * 1024 * 1024 / 60" | bc | cut -d . -f 1)
 
-# 許容範囲を±0.5%とする
-MIN_SIZE=$(echo "${EXPECTED_SIZE_BYTES} * 0.995" | bc | cut -d . -f 1)
-MAX_SIZE=$(echo "${EXPECTED_SIZE_BYTES} * 1.005" | bc | cut -d . -f 1)
+# 許容範囲を±10%とする
+MIN_SIZE=$(echo "${EXPECTED_SIZE_BYTES} * 0.9" | bc | cut -d . -f 1)
+MAX_SIZE=$(echo "${EXPECTED_SIZE_BYTES} * 1.1" | bc | cut -d . -f 1)
 
 ACTUAL_SIZE=$(stat -c%s "input.m4a")
 

@@ -169,48 +169,135 @@ async function retrieve_token(station_id, area_id) {
     }
 }
 
+/** Retrieves the playlist creation URL for a given Radiko station.
+ * @param {string} station_id - The ID of the Radiko station.
+ * @returns {Promise<string>} A promise that resolves with the playlist creation URL.
+ */
+async function playlist_create_url(station_id) {
+    let resp = await fetch(`https://radiko.jp/v3/station/stream/pc_html5/${station_id}.xml`);
+    let data = await resp.text();
+
+    // Sadly serice worker doesn't support parse xml.
+
+    // attribute:   timefree=1, because this is a timeshift
+    //              areafree=0, we use stations's local area id.
+    const regex = /((areafree="0".*?timefree="1")|(timefree="1".*?areafree="0")).*\n.*<playlist_create_url>(.*?)<\/playlist_create_url>/gm;
+    try {
+        // TODO well not safe....
+        let match = regex.exec(data);
+        return match[4];
+    } catch {
+        // fallback
+        return "https://tf-f-rpaa-radiko.smartstream.ne.jp/tf/playlist.m3u8"
+    }
+}
+
+/**
+ * Converts a program date string in YYYYMMDDHHmmss format to a JavaScript Date object.
+ * @param {*} programDate 
+ * @returns 
+ */
+function toDate(programDate) {
+    return new Date(`${programDate.slice(0, 4)}-${programDate.slice(4, 6)}-${programDate.slice(6, 8)}T${programDate.slice(8, 10)}:${programDate.slice(10, 12)}:${programDate.slice(12, 14)}.000`);
+}
+
+/**
+ * Seeks a given date by a specified number of seconds.
+ * @param {string} dt YYYYMMDDHHmmss style string
+ * @param {int} l seek seconds
+ *
+ * returns an array of [seeked date, YYYYMMDDHHmmss style string]
+ */
+function seek(dt, l) {
+    dt.setSeconds(dt.getSeconds() + l);
+    return [dt, `${dt.getFullYear()}${(dt.getMonth() + 1).toString().padStart(2, '0')}${dt.getDate().toString().padStart(2, '0')}${dt.getHours().toString().padStart(2, '0')}${dt.getMinutes().toString().padStart(2, '0')}${dt.getSeconds().toString().padStart(2, '0')}`]
+}
+
 /**
  * Downloads the audio stream from Radiko.
  * It fetches the playlist, extracts stream URLs, and saves them to a file for FFmpeg.
  * @param {string} area_id - The Radiko area ID.
  * @param {string} station_id - The ID of the Radiko station.
- * @param {string} ft - The start time of the program in YYYYMMDDHHmmss format.
+ * @param {string} from - The start time of the program in YYYYMMDDHHmmss format.
  * @param {string} to - The end time of the program in YYYYMMDDHHmmss format.
  * @param {string} token - The authentication token obtained from Radiko.
  * @returns {Promise<void>} A promise that resolves when the stream is successfully downloaded and processed.
  * @throws {Error} If stream download or processing fails.
  */
-async function download_stream(area_id, station_id, ft, to, token) {
-    let filename = station_id + '_' + ft + '_' + to + '.aac';
-    let stream_url = `https://radiko.jp/v2/api/ts/playlist.m3u8?station_id=${station_id}&l=15&ft=${ft}&to=${to}`;
-    const response = await fetch(stream_url, {
-        headers: {
-            "X-Radiko-AreaId": area_id,
-            "X-Radiko-Authtoken": token
+async function download_stream(area_id, station_id, from, to, token) {
+    // from yt-dlp-rajiko: the max accepted seek value.
+    const FIXED_SEEK = 300;
+    // whatever token has tf30 or not , just make a try
+    let url = new URL(await playlist_create_url(station_id));
+    let param = url.searchParams;
+    param.set("lsid", (() => {
+        let hex = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+        let s = '';
+        for (let i = 0; i < 32; i++) {
+            s += hex[(Math.floor(Math.random() * hex.length)) >> 0];
         }
-    });
-    console.log(`Stream URL response status: ${response.status}`);
-    if (!response.ok) {
-        throw new Error(`Failed to download stream: ${response.statusText}`);
+        return s;
+    })());
+    param.set("station_id", station_id);
+    param.set("l", FIXED_SEEK);
+    param.set("start_at", from);
+    param.set("end_at", to);
+    // b for station in area , c for not ,see `connectionType`
+    param.set("type", "b");
+    // These are not necessary (but we should look the same)
+    param.set("ft", from);
+    param.set("to", to);
+    let links = [];
+    for (
+        // Init
+        let end_date = toDate(to), seek_str = from, seek_date = toDate(from);
+        // Condtion
+        seek_date < end_date;
+        // Increment
+        [seek_date, seek_str] = seek(seek_date, FIXED_SEEK)
+    ) {
+        console.log(`Fetching stream for seek: ${seek_str} seconds`);
+        param.set("seek", seek_str);
+
+        let response = await fetch(url.toString(), {
+            headers: {
+                'X-Radiko-AreaId': area_id,
+                'X-Radiko-AuthToken': token
+            }
+        });
+
+        let resp = await response.text();
+        if (!response.ok || response.status == 403 || resp == "expired") {
+            console.log(`Skipping seek ${seek_str} due to error: ${response.status} ${resp}`);
+            return;
+        }
+        let detailLink = resp.split('\n').filter(function (d) {
+            return d[0] != '#' && d.trim() != '';
+        })[0];
+
+        let response2 = await fetch(detailLink);
+
+        let resp2 = await response2.text();
+        let partLinks = resp2.split('\n').filter(function (d) {
+            return d[0] != '#' && d.trim() != '';
+        });
+        links.push(...partLinks);
     }
-    let resp = await response.text();
-    console.log(`Stream URL response body: ${resp}`);
-    let detailLink = resp.split('\n').filter(function (d) {
-        return d[0] != '#' && d.trim() != '';
-    })[0];
-    let response2 = await fetch(detailLink);
-    let resp2 = await response2.text();
-    let links = resp2.split('\n').filter(function (d) {
-        return d[0] != '#' && d.trim() != '';
-    });
-    // ffmpeg が読める形式に変換
-    const ffmpegList = links.map(url => `file '${url}'`).join("\n");
+    // m3u8 (HLS) プレイリストを出力 — ffmpeg が直接読み込み可能
+    const m3u8Lines = [];
+    m3u8Lines.push('#EXTM3U');
+    m3u8Lines.push('#EXT-X-VERSION:3');
+    m3u8Lines.push('#EXT-X-TARGETDURATION:6');
+    m3u8Lines.push('#EXT-X-MEDIA-SEQUENCE:0');
+    for (let u of links) {
+        m3u8Lines.push('#EXTINF:5.0,');
+        m3u8Lines.push(u);
+    }
+    m3u8Lines.push('#EXT-X-ENDLIST');
+    const m3u8Filename = station_id + '_' + from + '_' + to + '.m3u8';
+    fs.writeFileSync(m3u8Filename, m3u8Lines.join('\n'));
 
-    // txt に保存
-    const listFilename = station_id + '_' + ft + '_' + to + '.txt';
-    fs.writeFileSync(listFilename, ffmpegList);
-
-    console.log(`Saved the FFmpeg list file: ${listFilename}`);
+    console.log(`Saved the HLS playlist file: ${m3u8Filename}`);
 }
 
 /**
@@ -225,14 +312,14 @@ async function main() {
         process.exit(1);
     }
 
-    const [station_id, area_id, ft, to] = args;
+    const [station_id, area_id, from, to] = args;
 
     try {
         console.log(`Attempting to get token for station ${station_id} in area ${area_id}...`);
         const token = await retrieve_token(station_id, area_id);
         console.log(`Successfully got token: ${token}`);
 
-        await download_stream(area_id, station_id, ft, to, token);
+        await download_stream(area_id, station_id, from, to, token);
     } catch (error) {
         console.error("An error occurred:", error.message);
     }
